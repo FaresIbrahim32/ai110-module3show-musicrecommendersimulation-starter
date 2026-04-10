@@ -17,17 +17,51 @@ Replace this paragraph with your own summary of what your version does.
 
 ## How The System Works
 
-Explain your design in plain language.
+Real-world recommenders like YouTube and Spotify run a two-stage pipeline: they first use collaborative filtering to find candidate content based on what similar users consumed, then rank those candidates using content features and personal behavior signals like watch time, skips, and likes. Our simulation cannot replicate that because we only have song attributes and no multi-user behavior data. Instead we use content-based filtering for a single simulated user — we define a user preference profile, score every song in the catalog against it using a weighted scoring system, and return the top k results ranked by score.
 
-Some prompts to answer:
+### Song Features
 
-- What features does each `Song` use in your system
-  - For example: genre, mood, energy, tempo
-- What information does your `UserProfile` store
-- How does your `Recommender` compute a score for each song
-- How do you choose which songs to recommend
+Each `Song` object stores:
 
-You can include a simple diagram or bullet list if helpful.
+**Categorical** — describes the type of song:
+- `genre` (lofi, rock, pop, jazz, ambient, synthwave, indie pop, edm, hip-hop, country, funk, r&b, blues, classical, folk)
+- `mood` (chill, happy, intense, relaxed, focused, moody, nostalgic, euphoric, melancholic, upbeat, playful, romantic, sad)
+- `artist`
+- `title`
+
+**Numerical** — describes the feel of the song on a 0.0–1.0 scale:
+- `energy` — how intense or loud
+- `valence` — how positive or upbeat
+- `danceability` — how rhythmically suited for dancing
+- `acousticness` — how acoustic vs electronic
+- `tempo_bpm` — beats per minute
+
+### UserProfile Features
+
+The `UserProfile` stores a manually defined preference dictionary that simulates what a real user's taste profile would look like after aggregating their listening history:
+- `genre` and `mood` — categorical preferences
+- `energy`, `valence`, `acousticness` — numerical target values between 0.0 and 1.0
+
+### Scoring Strategy: Weighted Feature Scoring
+
+Each song is scored against the user profile by awarding points per feature match. This approach was chosen over cosine similarity because it is fully explainable — every recommendation comes with a printed breakdown of exactly why that song scored high.
+
+```
+genre match      → +2.0 flat bonus  (strongest signal)
+mood match       → +1.0 flat bonus  (secondary signal)
+energy closeness → (1 - |user_energy - song_energy|) × 1.5   max 1.5
+valence closeness→ (1 - |user_valence - song_valence|) × 1.0  max 1.0
+acousticness     → (1 - |user_acousticness - song_acousticness|) × 0.5  max 0.5
+
+max total score  → 6.0
+```
+
+Songs are ranked highest score first and the top k are returned. Each result includes a human-readable explanation such as:
+
+```
+Sunrise City - Score: 4.47
+Because: genre match (+2.0), mood match (+1.0), energy score 0.82 (+1.47)
+```
 
 ---
 
