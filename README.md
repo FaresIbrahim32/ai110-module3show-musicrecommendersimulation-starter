@@ -102,11 +102,59 @@ You can add more tests in `tests/test_recommender.py`.
 
 ## Experiments You Tried
 
-Use this section to document the experiments you ran. For example:
+### CLI Verification
 
-- What happened when you changed the weight on genre from 2.0 to 0.5
-- What happened when you added tempo or valence to the score
-- How did your system behave for different types of users
+The simulation runs entirely from the terminal. Running `python -m src.main` loads all 18 songs, scores them against each user profile, and prints a ranked list with per-feature explanations.
+
+![CLI verification](CLI_verify.png)
+
+---
+
+### Standard Profiles
+
+Three distinct user personas were tested to verify the scoring logic responds correctly to different tastes.
+
+**High-Energy Pop** — genre=pop, mood=happy, energy=0.88
+
+![High-Energy Pop](recommender_edge_cases/Screenshot%202026-04-10%20at%207.39.29%20PM.png)
+
+**Chill Lofi** — genre=lofi, mood=chill, energy=0.38
+
+![Chill Lofi](recommender_edge_cases/Screenshot%202026-04-10%20at%207.39.40%20PM.png)
+
+**Deep Intense Rock** — genre=rock, mood=intense, energy=0.92
+
+![Deep Intense Rock](recommender_edge_cases/Screenshot%202026-04-10%20at%207.39.50%20PM.png)
+
+---
+
+### Edge Case Profiles
+
+Three adversarial profiles were used to probe the limits of the scoring logic.
+
+**High Energy + Sad Mood** — genre=blues, mood=sad, energy=0.90. The catalog has no high-energy blues songs, so the system defaults to Last Train despite the large energy mismatch. The +3.0 categorical floor from genre+mood exact match overrides the numerical penalty — a known limitation.
+
+![High Energy Sad](recommender_edge_cases/Screenshot%202026-04-10%20at%207.40.00%20PM.png)
+
+**Unknown Genre (bossa nova)** — genre not in catalog or any group, so all genre points are zero. The system falls back gracefully to mood and numerical features and still returns sensible results.
+
+![Unknown Genre](recommender_edge_cases/Screenshot%202026-04-10%20at%207.40.14%20PM.png)
+
+**All 0.5 Midpoint** — no numerical feature strongly penalizes any song, so categorical matches dominate. Night Drive Loop beats pop songs because mood exact match + genre group match equals the same categorical weight as a genre exact match alone.
+
+![All Midpoint](recommender_edge_cases/Screenshot%202026-04-10%20at%207.40.23%20PM.png)
+
+### Weight Shift Experiment
+
+Tested system sensitivity by doubling the energy weight (`×1.5 → ×3.0`) and halving the genre bonus (`+2.0 → +1.0`).
+
+**What changed vs what just differed:**
+
+- **Deep Intense Rock** — Gym Hero jumped from #5 → #2. It has `mood=intense` exact match and `energy=0.93` nearly identical to target `0.92`. Previously the genre group bonus for other songs pushed them ahead despite worse energy fits. With higher energy weight, the right song surfaced — a genuine accuracy improvement.
+
+- **High Energy + Sad edge case** — Storm Runner (energy=0.91, no genre/mood match) jumped to #2 purely on energy closeness. A sad blues user would not want Storm Runner. Energy weight being too high broke genre coherence for this profile.
+
+**Conclusion:** Genre acts as a coherence anchor. Reducing its weight makes the system more energy-accurate for straightforward profiles but allows numerically similar yet genre-incompatible songs to surface for edge cases. A fixed weight for all users is the underlying limitation — a real system would let users signal which feature matters most to them.
 
 ---
 
