@@ -116,15 +116,15 @@ Three distinct user personas were tested to verify the scoring logic responds co
 
 **High-Energy Pop** — genre=pop, mood=happy, energy=0.88
 
-![High-Energy Pop](recommender_edge_cases/Screenshot%202026-04-10%20at%207.39.29%20PM.png)
+![High-Energy Pop](recommender_edge_cases/Screenshot%202026-04-10%20at%207.39.29%E2%80%AFPM.png)
 
 **Chill Lofi** — genre=lofi, mood=chill, energy=0.38
 
-![Chill Lofi](recommender_edge_cases/Screenshot%202026-04-10%20at%207.39.40%20PM.png)
+![Chill Lofi](recommender_edge_cases/Screenshot%202026-04-10%20at%207.39.40%E2%80%AFPM.png)
 
 **Deep Intense Rock** — genre=rock, mood=intense, energy=0.92
 
-![Deep Intense Rock](recommender_edge_cases/Screenshot%202026-04-10%20at%207.39.50%20PM.png)
+![Deep Intense Rock](recommender_edge_cases/Screenshot%202026-04-10%20at%207.39.50%E2%80%AFPM.png)
 
 ---
 
@@ -134,15 +134,15 @@ Three adversarial profiles were used to probe the limits of the scoring logic.
 
 **High Energy + Sad Mood** — genre=blues, mood=sad, energy=0.90. The catalog has no high-energy blues songs, so the system defaults to Last Train despite the large energy mismatch. The +3.0 categorical floor from genre+mood exact match overrides the numerical penalty — a known limitation.
 
-![High Energy Sad](recommender_edge_cases/Screenshot%202026-04-10%20at%207.40.00%20PM.png)
+![High Energy Sad](recommender_edge_cases/Screenshot%202026-04-10%20at%207.40.00%E2%80%AFPM.png)
 
 **Unknown Genre (bossa nova)** — genre not in catalog or any group, so all genre points are zero. The system falls back gracefully to mood and numerical features and still returns sensible results.
 
-![Unknown Genre](recommender_edge_cases/Screenshot%202026-04-10%20at%207.40.14%20PM.png)
+![Unknown Genre](recommender_edge_cases/Screenshot%202026-04-10%20at%207.40.14%E2%80%AFPM.png)
 
 **All 0.5 Midpoint** — no numerical feature strongly penalizes any song, so categorical matches dominate. Night Drive Loop beats pop songs because mood exact match + genre group match equals the same categorical weight as a genre exact match alone.
 
-![All Midpoint](recommender_edge_cases/Screenshot%202026-04-10%20at%207.40.23%20PM.png)
+![All Midpoint](recommender_edge_cases/Screenshot%202026-04-10%20at%207.40.23%E2%80%AFPM.png)
 
 ### Weight Shift Experiment
 
